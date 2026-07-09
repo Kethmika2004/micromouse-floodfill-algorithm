@@ -1,106 +1,347 @@
-# ROBOFEST 2026 Micromouse Solver — Modified Flood Fill
+# 🤖 ROBOFEST 2026 – Micromouse Solver
 
-Targets the [`mms`](https://github.com/mackorone/mms) simulator (mackorone/mms).
-Tested end-to-end against a mock protocol server (`fake_mms.py`, included) on
-both an open maze and a maze with an internal wall barrier — both solved
-cleanly with no crashes and no deadlocks.
+### Modified Flood Fill Algorithm for Autonomous Maze Navigation
 
-## What it does
+![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-mms%20Simulator-success)
+![Algorithm](https://img.shields.io/badge/Algorithm-Modified%20Flood%20Fill-orange)
+![Status](https://img.shields.io/badge/Status-Competition%20Ready-brightgreen)
 
-1. **Search passes** (`NUM_SEARCH_ROUND_TRIPS`, default 2): drives start→goal→start
-   repeatedly, sensing walls at every cell and recomputing the flood field
-   live. Each extra round trip tends to reveal shortcuts the previous pass
-   didn't take, because the flood values shift as more walls become known.
-2. **Speed run**: once search passes are done, recomputes the flood field on
-   the fully-known map, extracts the true shortest path, compresses it into
-   long straight segments, and drives it with batched `moveForward(n)` calls
-   instead of stopping every cell — this both scores better under `mms`'s
-   effective-distance rule and mirrors how the real robot should run
-   (accelerate through a straight instead of stop-start every 18cm).
+An optimized **Modified Flood Fill** implementation developed for **ROBOFEST 2026 Micromouse**. The solver is designed for the **mackorone/mms** simulator and features multi-pass maze exploration, dynamic flood-field recomputation, shortest-path extraction, and an optimized speed run strategy.
 
-## Build
+---
+
+# 📖 Overview
+
+This project implements a competition-oriented **Flood Fill Algorithm** for autonomous maze navigation. Unlike a traditional implementation that simply computes a shortest path once, this solver continuously updates its internal maze representation as new walls are discovered and recomputes the flood values in real time.
+
+After exploration is complete, the solver performs an optimized speed run using the fully discovered maze, compressing straight paths to minimize unnecessary stops and improve traversal efficiency.
+
+The project was designed specifically for **ROBOFEST 2026** but can also serve as a learning resource for robotics, path planning, and autonomous navigation.
+
+---
+
+# ✨ Features
+
+* ✅ Modified Flood Fill Algorithm
+* ✅ Dynamic wall discovery
+* ✅ Real-time flood-field recomputation
+* ✅ Multi-pass maze exploration
+* ✅ Automatic shortest-path extraction
+* ✅ Straight-path compression
+* ✅ Optimized speed run
+* ✅ Compatible with the `mms` simulator
+* ✅ Offline testing with a mock protocol server
+* ✅ Modular C++17 implementation
+
+---
+
+# 🧠 Algorithm Overview
+
+The solver operates in two major phases.
+
+## 1️⃣ Search Phase
+
+The mouse repeatedly explores the maze.
+
+For every movement:
+
+* Detect surrounding walls
+* Update the internal maze representation
+* Recompute flood values
+* Move toward the neighbor with the minimum flood value
+
+Each search pass improves the quality of the discovered map.
+
+By default, the solver performs **two complete round trips** between the start and the goal.
+
+---
+
+## 2️⃣ Speed Run
+
+After exploration is complete:
+
+* The maze is treated as fully known.
+* Flood values are recomputed.
+* The shortest path is extracted.
+* Consecutive straight cells are compressed.
+* The mouse executes long `moveForward(n)` commands instead of stopping at every cell.
+
+This significantly improves traversal efficiency and better reflects how a real Micromouse robot should operate.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+            Unknown Maze
+                 │
+                 ▼
+        Wall Detection
+                 │
+                 ▼
+      Internal Maze Update
+                 │
+                 ▼
+      Flood Fill Computation
+                 │
+                 ▼
+      Next Cell Selection
+                 │
+                 ▼
+         Continue Search
+                 │
+                 ▼
+      Fully Explored Maze
+                 │
+                 ▼
+      Shortest Path Extraction
+                 │
+                 ▼
+       Path Compression
+                 │
+                 ▼
+          Optimized Speed Run
+```
+
+---
+
+# 📂 Repository Structure
+
+```text
+.
+├── api.cpp
+├── api.h
+├── floodfill.cpp
+├── floodfill.h
+├── main.cpp
+├── fake_mms.py
+└── README.md
+```
+
+| File                            | Description                                                                                 |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `api.h` / `api.cpp`             | Wrapper for the mms Mouse API communication protocol                                        |
+| `floodfill.h` / `floodfill.cpp` | Flood Fill implementation, wall map, BFS computation, path extraction, and path compression |
+| `main.cpp`                      | Multi-pass exploration strategy and speed run orchestration                                 |
+| `fake_mms.py`                   | Mock protocol server for offline testing                                                    |
+
+---
+
+# 🚀 Getting Started
+
+## Requirements
+
+* C++17
+* GCC / Clang
+* Python 3 (for offline testing)
+* mackorone/mms Simulator
+
+Simulator:
+
+https://github.com/mackorone/mms
+
+---
+
+# 🔨 Build
 
 ```bash
 g++ -std=c++17 -O2 api.cpp floodfill.cpp main.cpp -o mouse
 ```
 
-## Run in `mms`
+---
 
-1. Open the simulator, click **Edit Algorithm**.
-2. Set **Directory** to this folder.
-3. **Build Command:** `g++ -std=c++17 -O2 api.cpp floodfill.cpp main.cpp -o mouse`
-4. **Run Command:** `./mouse`
-5. Load a maze (try [micromouseonline/mazefiles](https://github.com/micromouseonline/mazefiles)
-   for real contest mazes, not just the built-in ones) and hit run.
+# ▶️ Running in the mms Simulator
 
-## Sanity-check without the GUI
+1. Open the **mms Simulator**.
+2. Click **Edit Algorithm**.
+3. Set the project directory.
+4. Build using:
 
 ```bash
 g++ -std=c++17 -O2 api.cpp floodfill.cpp main.cpp -o mouse
+```
+
+5. Run using
+
+```bash
+./mouse
+```
+
+6. Load any maze and press **Run**.
+
+For more realistic competition mazes:
+
+https://github.com/micromouseonline/mazefiles
+
+---
+
+# 🧪 Offline Testing
+
+Compile the solver:
+
+```bash
+g++ -std=c++17 -O2 api.cpp floodfill.cpp main.cpp -o mouse
+```
+
+Run the mock protocol server:
+
+```bash
 python3 fake_mms.py
 ```
 
-`fake_mms.py` is a minimal stand-in for the simulator's stdin/stdout protocol.
-It's not a replacement for testing in the real `mms` GUI (no visual, no real
-maze files), but it's much faster for catching plumbing bugs — infinite
-loops, protocol desyncs, off-by-one wall bugs — before you ever open the GUI.
-Edit the wall-generation block at the top to try different obstacle layouts.
+The mock server simulates the communication protocol used by the `mms` simulator.
 
-## Tuning
+Although it does not provide visualization, it is extremely useful for detecting:
 
-- `NUM_SEARCH_ROUND_TRIPS` in `main.cpp` — more passes = better-known map =
-  better final path, at the cost of more search time. Given your 8-minute
-  Trial Time (elimination round, section 2.4.2) or 12-minute Competition
-  Time (final round, section 2.5.2), 2–3 is a reasonable starting point;
-  tune upward if your mouse is fast enough that search time is cheap
-  relative to run time.
-- `VISUALIZE` — turns on/off drawing the flood field as cell text at the
-  end. Kept off during search on purpose (see below).
+* Infinite loops
+* Protocol synchronization issues
+* Incorrect wall detection
+* Off-by-one errors
+* Navigation bugs
 
-## A bug worth knowing about, and how it was caught
+before testing inside the graphical simulator.
 
-The first version of this code called the flood-field visualization
-(drawing every cell's flood value as text) on *every single navigation
-step*, not just once at the end. In `mms` that's 256 `setText` calls per
-cell moved — harmless to correctness, but it would visibly lag the
-simulator and, on real hardware, would be the equivalent of stalling your
-control loop every step to update a debug display. Caught this with the
-mock server precisely because it showed up as "far more protocol messages
-than moves made." Worth keeping in mind if you extend this: anything you
-do every navigation step should be `O(1)`-ish, not `O(maze size)`.
+---
 
-## Diagonal mode (`ENABLE_DIAGONAL_SPEEDRUN`)
+# ⚙️ Configuration
 
-Currently **off** by default, and deliberately not implemented as a silent
-"just works" flag. `mms` genuinely supports diagonal solving —
-`turnRight45`/`turnLeft45`/`moveForwardHalf`/`wallFront(N)` with a half-step
-lookahead all exist in the API — but the exact half-step counting
-convention for cutting a corner (how many half-steps a 45°-in / diagonal /
-45°-out sequence should cover to land squarely in the next cell without
-clipping the lattice post) isn't something to guess at blindly; it needs to
-be confirmed visually in the simulator, the same way you'd tune it on real
-hardware. Guessing wrong here and shipping it as "done" would be worse than
-not having it — a mouse that clips corners in competition is worse than one
-that just does clean 90° turns.
+Several parameters can be adjusted depending on the competition strategy.
 
-The recommended path:
-1. Get the cardinal (90°-turn) version above winning comfortably in `mms`
-   first — that's the actual backbone of the algorithm and is what your
-   Trial Time score is going to be won or lost on.
-2. Once that's solid, we build the diagonal path-smoother (staircase
-   pattern → diagonal run detection lives cleanly on top of
-   `FloodFill::compressPath`) and verify the half-step geometry against the
-   simulator's visual output cell by cell before trusting it.
-3. Only then does it move to the real MPU6050/PID arc-turn implementation
-   discussed separately — diagonal execution on real hardware is a motion-
-   control problem (turn-while-moving velocity profile), not something the
-   path planner alone solves.
+### `NUM_SEARCH_ROUND_TRIPS`
 
-## Files
+Located in `main.cpp`.
 
-| File | Purpose |
-|---|---|
-| `api.h` / `api.cpp` | stdin/stdout protocol wrapper for the mms Mouse API |
-| `floodfill.h` / `floodfill.cpp` | Wall map, BFS flood computation, path extraction, path compression |
-| `main.cpp` | Multi-pass search strategy + speed run orchestration |
-| `fake_mms.py` | Mock protocol server for fast offline testing |
+Controls the number of complete exploration passes.
+
+Higher values:
+
+* Better maze knowledge
+* Better final path
+* Longer search time
+
+Recommended values:
+
+* **2** for fast competitions
+* **3** for more complete exploration
+
+---
+
+### `VISUALIZE`
+
+Enables visualization of the flood values.
+
+Disabled during search because rendering every flood value on every movement introduces unnecessary overhead.
+
+Recommended:
+
+```text
+OFF during exploration
+ON for debugging
+```
+
+---
+
+### `ENABLE_DIAGONAL_SPEEDRUN`
+
+Currently disabled.
+
+The simulator supports diagonal movement through:
+
+* `turnLeft45()`
+* `turnRight45()`
+* `moveForwardHalf()`
+
+However, proper half-step geometry must be verified visually before enabling diagonal execution.
+
+Future work will integrate:
+
+* Diagonal path smoothing
+* Arc turns
+* Motion profiling
+* PID-controlled diagonal movement
+
+---
+
+# 📊 Performance Highlights
+
+* Multi-pass exploration
+* Dynamic flood updates
+* Efficient BFS implementation
+* Optimized shortest-path extraction
+* Straight-path compression
+* Reduced movement overhead
+* Stable protocol communication
+* Modular architecture
+* Competition-ready implementation
+
+---
+
+# 🐞 Debugging
+
+One important optimization discovered during development involved flood-field visualization.
+
+An early version redrew every flood value after each movement.
+
+Although algorithmically correct, this generated hundreds of unnecessary protocol messages and significantly slowed execution.
+
+The issue was detected using the mock protocol server and resolved by limiting visualization to debugging sessions only.
+
+This serves as an important reminder that expensive operations should never occur inside the robot's main navigation loop.
+
+---
+
+# 🔮 Future Improvements
+
+* A* Search
+* Dijkstra Comparison
+* Bidirectional Search
+* Diagonal Speed Run
+* Motion Profiling
+* PID-controlled Arc Turns
+* Hardware Integration
+* Sensor Noise Handling
+* Performance Benchmarking
+* Maze Visualization
+* SLAM-inspired Mapping
+
+---
+
+# 📚 References
+
+* Mackorone Micromouse Simulator
+
+  https://github.com/mackorone/mms
+
+* Micromouse Online Maze Files
+
+  https://github.com/micromouseonline/mazefiles
+
+* IEEE Micromouse Competition Resources
+
+* Flood Fill Algorithm
+
+* Breadth-First Search (BFS)
+
+---
+
+# 👨‍💻 Authors
+
+**Yasandu Kethmika**
+
+Computer Science & Engineering Undergraduate
+University of Moratuwa
+
+GitHub: https://github.com/Kethmika2004
+
+---
+
+# 📄 License
+
+This project is released under the **MIT License**.
+
+Feel free to use, modify, and extend this project for educational, research, or competition purposes.
+
+---
+
+⭐ **If you found this project useful, consider giving the repository a star!**
